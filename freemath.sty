@@ -2,6 +2,11 @@
 \ProvidesPackage{freemath}
 
 \protected\def\freemathon{%
+	\AtBeginDocument{\@freemathon}%
+}
+\AtBeginDocument{\let\freemathon=\@freemathon}
+
+\protected\def\@freemathon{%
 	\catcode`\^=\active \catcode`\_=\active
 	\lccode`~=`\^\lowercase{\let~\freemath@sp}%
 	\lccode`~=`\_\lowercase{\let~\freemath@sb}%
@@ -78,25 +83,21 @@
 }
 
 \protected\def\freemath@sp{%
-	\relax\ifmmode
-		\def\next{\freemath@collect\freemath@spA{}}%
-	\else
-		\def\next{^}%
-	\fi \next
+	\ifincsname \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
+		^%
+		{\relax\ifmmode \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
+			{\freemath@collect\freemath@spA{}}^}%
 }
 \def\freemath@spA#1{\if\relax\detokenize{#1}\relax \sp \else \sp{#1}\fi}
 \protected\def\freemath@sb{%
-	\relax\ifmmode
-		\def\next{\freemath@collect\freemath@sbA{}}%
-	\else
-		\def\next{_}%
-	\fi \next
+	\ifincsname \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
+		_%
+		{\relax\ifmmode \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
+			{\freemath@collect\freemath@sbA{}}_}%
 }
 \def\freemath@sbA#1{\if\relax\detokenize{#1}\relax \sb \else \sb{#1}\fi}
 
 \g@addto@macro\operator@font\freemathoff
-
-\AtBeginDocument{\freemathon}
 
 \endinput
 
@@ -109,7 +110,7 @@ freemath: LaTeX math without backslashes.
 
 Any string of at least two consecutive letters appearing in math mode will automatically be turned into the control sequence with the same name, if it exists.
 
-This package provides the `\freemathon` and `\freemathoff` commands which respectively activate and deactivate this behaviour. It is enabled by default upon loading.
+This package provides the `\freemathon` and `\freemathoff` commands which respectively activate and deactivate this behaviour. It is disabled by default upon loading.
 
 Example:
 With freemath: `lim_{n to infty} int_Omega n log left( 1 + frac{f}{n} right) d mu`.
