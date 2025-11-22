@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+
+\usepackage{geometry}
+
+\usepackage{mlmodern}
+
+\usepackage{enumitem}
+\setlist[itemize]{align=parleft,left=0pt..30pt}
+
+\parindent=0pt
+\parskip=\medskipamount
+
+\usepackage[hidelinks]{hyperref}
+
+\usepackage{mathtools}
+
+\usepackage{freemath}
+
+\protected\def\link{\futurelet\tempa\linkA}
+\def\linkA{\ifx[\tempa \expandafter\linkB \else \expandafter\linkC \fi}
+\long\def\linkB[#1]#2{\href{#2}{\ttul{#1}}}
+\long\def\linkC#1{\href{#1}{\ttul{#1}}}
+\protected\long\def\email#1{\href{mailto:#1}{\ttul{#1}}}
+
+\protected\long\def\ttul#1{%
+	\leavevmode
+	\setbox0=\hbox{\ttfamily #1}%
+	\lower2.25pt\rlap{\leaders\hrule height.625px\hskip\wd0}%
+	\pdfliteral{q 1 G 2 Tr 1.7 w 1 j 1 J}%
+	\rlap{\copy0}%
+	\pdfliteral{Q}%
+	\box0
+}
+
+\title{The \texttt{freemath} Package, version 1.0}
+\author{plante}
+
+\begin{document}
+
+\maketitle
+
+\noindent
+
+\subsection*{Usage}
+
+The \texttt{freemath} package allows for the omission of backslashes from most math mode commands. Specifically, any consecutive string of at least two (Latin) letters appearing in math will automatically be turned into the control sequence with the same name, if it exists.
+The package provides the \verb|\freemathon| and \verb|\freemathoff| commands which respectively activate and deactivate this behaviour. It is enabled by default upon loading by \verb|\usepackage{freemath}|.
+
+Regular commands initiated by a backslash may of course still be used when freemath is active, and can furthermore be freely mixed with backslash-free commands.
+
+\medskip
+
+\textit{Example with freemath:} \vadjust{\vskip-\medskipamount}
+\[ \hbox{\verb|lim_{n to infty} int_Omega n log left( 1 + frac{f}{n} right) d mu|}. \]
+\textit{Example without freemath:} \vadjust{\vskip-\medskipamount}
+\[ \hbox{\verb|\lim_{n\to\infty} \int_\Omega n \log\left( 1 + \frac{f}{n} \right) d\mu|}. \]
+
+\vskip-\medskipamount
+\[ lim_{n to infty} int_Omega n log left( 1 + frac{f}{n} right) d mu. \]
+
+\subsection*{Known Limitations}
+
+\begin{itemize}
+
+\item Braces are required whenever such a string of letters appears as an argument to another macro. For instance, one must write \verb|frac{omega}{phi}| instead of \verb|frac omega phi|, even though \verb|\frac\omega\phi| is acceptable in ordinary \LaTeX.
+
+\item An exception to the rule above is super- and subscripts, where for instance \verb|f_mu| renders as expected ($f_mu$). This compatibility is achieved by assigning the active category code (13) to \verb|^| and \verb|_|.
+
+\item Braces are required around the argument to \verb|\sqrt| even when it consists of a single letter. Backslash commands must be used for \verb|\left| and \verb|\right| delimiters that are not single characters (eg.\ \verb|left \lVert|).
+
+\item Commands which typeset their own name may result in infinite loops.
+One class of such commands is the math operators (eg.\ \verb|\lim|, \verb|\exp|) and the package includes a fix in this case (by modifying \verb|\operator@font|).
+The workaround in general is to patch these commands to insert \verb|\freemathoff| locally.
+
+\end{itemize}
+
+\subsection*{License}
+
+This package is copyright \copyright\ 2025 plante, and
+released under the \LaTeX\ Project Public License (\textsc{lppl}) 1.3c.
+
+\subsection*{Repository}
+
+The upstream repository of this package may be found at
+	\[ \link{https://github.com/plante3/freemath/tree/main}. \]
+
+\end{document}
