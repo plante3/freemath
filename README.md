@@ -2,7 +2,7 @@
 
 freemath: LaTeX math without backslashes.
 
-Any string of at least two consecutive letters appearing in math mode will automatically be turned into the control sequence with the same name, if it exists.
+Any string of at least two consecutive letters appearing in math mode will automatically be replaced with the control sequence having the same name, if it is defined.
 
 This package provides the `\freemathon` and `\freemathoff` commands which activates and deactivates this behaviour respectively. It is disabled by default upon loading.
 
