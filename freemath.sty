@@ -1,6 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{freemath}
 
+
+
 \protected\def\freemathon{%
 	\AtBeginDocument{\@freemathon}%
 }
@@ -18,12 +20,18 @@
 			\expandafter\mathchardef\csname freemath@#1\endcsname \mathcode`#1
 			\mathcode`#1="8000
 			\begingroup \lccode`~=`#1\lowercase{\endgroup \def~}%
-				{\freemath@collect\@iden#1}%
+				{\freemath@collect\relax\freemath@literal\@iden#1}%
 		\fi
 		\expandafter\freemath@activate
 	\fi
 }
-\protected\def\freemathoff{
+
+\protected\def\freemathoff{%
+	\AtBeginDocument{\@freemathoff}%
+}
+\AtBeginDocument{\let\freemathoff=\@freemathoff}
+
+\protected\def\@freemathoff{
 	\catcode`\^=7 \catcode`\_=8
 	\freemath@deactivate abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\@nnil
 }
@@ -36,12 +44,18 @@
 	\fi
 }
 
-\newtoks\freemath@do
+
+
+\newtoks\freemath@doempty
+\newtoks\freemath@doletters
+\newtoks\freemath@docs
 \newtoks\freemath@word
-\protected\def\freemath@collect#1#2{%
+\protected\def\freemath@collect#1#2#3#4{%
 	\begingroup \ifnum\iffalse{\fi`}=\z@\fi
-	\freemath@do={#1}%
-	\freemath@word={#2}%
+	\freemath@doempty={#1}%
+	\freemath@doletters={#2}%
+	\freemath@docs={#3}%
+	\freemath@word={#4}%
 	\futurelet\next\freemath@collectA
 }
 \def\freemath@collectA{%
@@ -58,50 +72,93 @@
 \def\freemath@collectC{%
 	\ifnum`{=\z@}\fi \edef\next{%
 		\endgroup
-		\the\freemath@do
 		\if\relax\detokenize\expandafter{\the\freemath@word}\relax
-			{}%
+			\the\freemath@doempty
 		\else
 			\ifcsname \the\freemath@word \endcsname
 				\if\relax\detokenize\expanded{{\expandafter\@gobble \the\freemath@word}}\relax
-					{\noexpand\freemath@literal \the\freemath@word\noexpand\@nnil}%
+					\the\freemath@doletters
+						{\the\freemath@word}%
 				\else
-					\expandafter\noexpand \csname \the\freemath@word \endcsname
+					\the\freemath@docs
+						\expandafter\noexpand \csname \the\freemath@word \endcsname
 				\fi
 			\else
-				{\noexpand\freemath@literal \the\freemath@word\noexpand\@nnil}%
+				\the\freemath@doletters
+					{\the\freemath@word}%
 			\fi
 		\fi
 	}\next
 }
 
-\def\freemath@literal#1{%
+\protected\def\freemath@literal#1{\freemath@literalA#1\@nnil}
+\def\freemath@literalA#1{%
 	\ifx\@nnil#1\else
 		\csname freemath@#1\endcsname
-		\expandafter\freemath@literal
+		\expandafter\freemath@literalA
 	\fi
 }
+
+
 
 \protected\def\freemath@sp{%
 	\ifincsname \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
 		^%
 		{\relax\ifmmode \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
-			{\freemath@collect\freemath@spA{}}^}%
+			{\freemath@collect^\freemath@spletters\freemath@spcs{}}^}%
 }
-\def\freemath@spA#1{\if\relax\detokenize{#1}\relax \sp \else \sp{#1}\fi}
+\long\def\freemath@spletters#1{%
+	^{\expandafter\freemath@literal\expandafter{\@car#1\@nil}}%
+	\expandafter\freemath@literal\expandafter{\@cdr#1\@nil}%
+}
+\long\def\freemath@spcs#1{^{#1}}
+
 \protected\def\freemath@sb{%
 	\ifincsname \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
 		_%
 		{\relax\ifmmode \expandafter\@firstoftwo \else \expandafter\@secondoftwo \fi
-			{\freemath@collect\freemath@sbA{}}_}%
+			{\freemath@collect_\freemath@sbletters\freemath@sbcs{}}_}%
 }
-\def\freemath@sbA#1{\if\relax\detokenize{#1}\relax \sb \else \sb{#1}\fi}
+\long\def\freemath@sbletters#1{%
+	_{\expandafter\freemath@literal\expandafter{\@car#1\@nil}}%
+	\expandafter\freemath@literal\expandafter{\@cdr#1\@nil}%
+}
+\long\def\freemath@sbcs#1{_{#1}}
+
+\ifdefined\freemath@savedleft \else \let\freemath@savedleft=\left \fi
+\protected\def\left{\expandafter\freemath@left \romannumeral-`\^^@}
+\def\freemath@left{\freemath@collect\freemath@savedleft\freemath@leftA\freemath@savedleft{}}
+\long\def\freemath@leftA#1{%
+	\expandafter\freemath@savedleft \@car#1\@nil
+	\expandafter\freemath@litearl\expandafter{\@cdr#1\@nil}%
+}
+
+\ifdefined\freemath@savedright \else \let\freemath@savedright=\right \fi
+\protected\def\right{\expandafter\freemath@right \romannumeral-`\^^@}
+\def\freemath@right{\freemath@collect\freemath@savedright\freemath@rightA\freemath@savedright{}}
+\long\def\freemath@rightA#1{%
+	\expandafter\freemath@savedright \@car#1\@nil
+	\expandafter\freemath@litearl\expandafter{\@cdr#1\@nil}%
+}
+
+\ifdefined\freemath@savedradical \else \let\freemath@savedradical=\radical \fi
+\newcount\freemath@radical@c
+\protected\def\radical{\afterassignment\freemath@radicalA \freemath@radical@c=}
+\def\freemath@radicalA{\futurelet\next\freemath@radicalB}
+\def\freemath@radicalB{%
+	\ifx\relax\next
+		\expandafter\expandafter\expandafter\freemath@radicalC\expandafter\@gobble
+	\else
+		\expandafter\freemath@radicalC
+	\fi
+}
+\long\def\freemath@radicalC#1{\freemath@savedradical\freemath@radical@c{#1}}
 
 \g@addto@macro\operator@font\freemathoff
 
 \endinput
 
-freemath.sty, version 1.0
+freemath.sty, version 1.1
 
 Copyright (C) 2025 plante
 This package is released under the LaTeX Project Public License (LPPL) 1.3c.

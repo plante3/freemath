@@ -19,6 +19,6 @@ This package may be used in LaTeX by `\usepackage{freemath}`.
 See the documentation for known limitations.
 
 Copyright (C) 2025 plante
-Version 1.0
+Version 1.1
 
 This package is released under the LaTeX Project Public License (LPPL) 1.3c.

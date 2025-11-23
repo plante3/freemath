@@ -17,6 +17,9 @@
 \usepackage{freemath}
 \freemathon
 
+% \usepackage{mleftright}
+% \mleftright
+
 \protected\def\link{\futurelet\tempa\linkA}
 \def\linkA{\ifx[\tempa \expandafter\linkB \else \expandafter\linkC \fi}
 \long\def\linkB[#1]#2{\href{#2}{\ttul{#1}}}
@@ -33,7 +36,7 @@
 	\box0
 }
 
-\title{The \texttt{freemath} Package, version 1.0}
+\title{The \texttt{freemath} Package, version 1.1}
 \author{plante}
 
 \begin{document}
@@ -44,7 +47,7 @@
 
 \subsection*{Usage}
 
-The \texttt{freemath} package allows for the omission of backslashes from most math mode commands. Specifically, any consecutive string of at least two (Latin) letters appearing in math mode will automatically be replaced with the control sequence having the same name, if it is defined.
+The \texttt{freemath} package allows for the omission of backslashes from most math mode commands. Specifically, any maximal consecutive string of at least two (Latin) letters appearing in math mode will automatically be replaced with the control sequence having the same name, if it is defined.
 
 The package is loaded by \verb|\usepackage{freemath}| and provides the \verb|\freemathon| and \verb|\freemathoff| commands which respectively activate and deactivate this behaviour. It is \textbf{disabled} by default upon loading.
 
@@ -62,18 +65,49 @@ To prevent undesirable command formation simply insert spaces in-between letters
 \vskip-\medskipamount
 \[ lim_{n to infty} int_Omega n log left( 1 + frac{f}{n} right) d mu. \]
 
+\iffalse
+\begingroup
+\everymath={\displaystyle} \openup3\jot \obeylines
+\def\abs#1{\lvert#1\rvert}
+$phi_g(x)$  $f_theta^xi(omega)$ $a^2+b^2=c^2$ $x^n+y^n=z^n$ $A_abc$ $A_alpha$ $x_ix_j$
+$forall epsilon > 0 \, forall x in S \, exists delta > 0 \ abs{y-x} < delta implies abs{f(y)-f(x)} < epsilon$
+$limsup_{n to infty} frac{abs{a_{n+1} - L}}{abs{a_n - L}^mu} < infty$
+$prod_{n=2}^infty e left( 1 - frac{1}{n^2} right)^{n^2} = frac{pi}{e sqrt e}$
+$sin 2x = 2 sin x cos x$ $displaystyle sum_{i=1}^infty sum_{j=1}^i a_{i j} < e$ $prod_i sin(2^i x)$
+$frac{partial^2 ell(beta)}{partial beta partial beta^top} = -sum_{i=1}^N x_i x_i^top p(x_i; beta)(1 - p(x_i; beta))$
+$left lVert vec u + vec v right rVert leq left lVert vec u right rVert + left lVert vec v right rVert $
+$biggl{lVert} x biggr{rVert}$
+\endgroup
+\fi
+
 \subsection*{Known Limitations}
 
 \begin{itemize}
 
 \item Braces are required whenever such a string of letters appears as an argument to another macro. For instance, one must write \verb|frac{omega}{phi}| instead of \verb|frac omega phi|, even though \verb|\frac\omega\phi| is acceptable in ordinary \LaTeX.
 
-\item An exception to the rule above is super- and subscripts, where for instance \verb|f_mu| renders as expected ($f_mu$). This compatibility is achieved by assigning the active category code (13) to \verb|^| and \verb|_|.
+Exceptions to the rule above are superscripts, subscripts, and \verb|\left| \verb|\right|, where for instance \verb|left lVert f_mu right rVert| renders as expected ($left lVert f_mu right rVert$).
 
-\item Braces are required around the argument to \verb|\sqrt| even when it consists of a single letter. Backslash commands must be used for \verb|\left| and \verb|\right| delimiters that are not single characters (eg.\ \verb|left \lVert|).
+% \item
+% Braces are required around the argument to \verb|\sqrt| even when it consists of a single letter.
+% Backslash commands must be used for \verb|\left| and \verb|\right| delimiters that are not single characters (eg.\ \verb|left \lVert|).
+
+\end{itemize}
+
+Changes to \LaTeX\ internals are summarised below:
+
+\begin{itemize}
+
+\item All letters are assigned a mathcode of \verb|"8000| (\verb|"1000000| in Lua\LaTeX).
+
+\item The characters \verb|^| and \verb|_| have been made active (category code 13).
+
+\item The primitives \verb|\left| and \verb|\right| have been redefined.
+
+\item The primitive \verb|\radical| has been redefined to have a macro-style argument in the second parameter.
 
 \item Commands which typeset their own name may result in infinite loops.
-One class of such commands is the math operators (eg.\ \verb|\lim|, \verb|\exp|) and the package includes a fix in this case (by modifying \verb|\operator@font|).
+One class of such commands is the math operators (eg.\ \verb|\lim|, \verb|\exp|) and the package includes a fix in this case by modifying \verb|\operator@font|.
 The workaround in general is to patch these commands to insert \verb|\freemathoff| locally.
 
 \end{itemize}
