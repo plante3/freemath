@@ -1,3 +1,4 @@
+% \DocumentMetadata{tagging=on}
 \documentclass[11pt]{article}
 
 \usepackage{geometry}
@@ -74,6 +75,8 @@ To prevent undesirable command formation simply insert spaces in-between letters
 \item Braces are required whenever such a string of letters appears as an argument to another macro. For instance, one must write \verb|frac{omega}{phi}| instead of \verb|frac omega phi|, even though \verb|\frac\omega\phi| is acceptable in ordinary \LaTeX.
 
 Exceptions to the rule above are superscripts, subscripts, and \verb|\left| \verb|\right|, where for instance \verb|left lVert f_mu right rVert| renders as expected ($left lVert f_mu right rVert$).
+
+\item When used in conjunction with the \texttt{unicode-math} package, some math mode commands like \verb|\sqrt| and \verb|\vec| require mandatory braces for single-letter arguments.
 
 % \item
 % Braces are required around the argument to \verb|\sqrt| even when it consists of a single letter.

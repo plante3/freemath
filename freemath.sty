@@ -14,10 +14,11 @@
 	\lccode`~=`\_\lowercase{\let~\freemath@sb}%
 	\freemath@activate abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\@nnil
 }
+\ifdefined\directlua
 \def\freemath@activate#1{%
 	\ifx\@nnil#1\else
-		\ifnum\mathcode`#1=\ifdefined\directlua"1000000 \else "8000\fi \else
-			\expandafter\mathchardef\csname freemath@#1\endcsname \mathcode`#1
+		\ifnum\mathcode`#1="1000000 \else
+			\expandafter\Umathcharnumdef\csname freemath@char@#1\endcsname \mathcode`#1
 			\mathcode`#1="8000
 			\begingroup \lccode`~=`#1\lowercase{\endgroup \def~}%
 				{\freemath@collect\relax\freemath@literal\@iden#1}%
@@ -25,6 +26,19 @@
 		\expandafter\freemath@activate
 	\fi
 }
+\else
+\def\freemath@activate#1{%
+	\ifx\@nnil#1\else
+		\ifnum\mathcode`#1="8000 \else
+			\expandafter\mathchardef\csname freemath@char@#1\endcsname \mathcode`#1
+			\mathcode`#1="8000
+			\begingroup \lccode`~=`#1\lowercase{\endgroup \def~}%
+				{\freemath@collect\relax\freemath@literal\@iden#1}%
+		\fi
+		\expandafter\freemath@activate
+	\fi
+}
+\fi
 
 \protected\def\freemathoff{%
 	\AtBeginDocument{\@freemathoff}%
@@ -35,14 +49,25 @@
 	\catcode`\^=7 \catcode`\_=8
 	\freemath@deactivate abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\@nnil
 }
+\ifdefined\directlua
 \def\freemath@deactivate#1{%
 	\ifx\@nnil#1\else
-		\ifcsname freemath@#1\endcsname
-			\mathcode`#1=\csname freemath@#1\endcsname
+		\ifcsname freemath@char@#1\endcsname
+			\Umathcodenum`#1=\csname freemath@char@#1\endcsname
 		\fi
 		\expandafter\freemath@deactivate
 	\fi
 }
+\else
+\def\freemath@deactivate#1{%
+	\ifx\@nnil#1\else
+		\ifcsname freemath@char@#1\endcsname
+			\mathcode`#1=\csname freemath@char@#1\endcsname
+		\fi
+		\expandafter\freemath@deactivate
+	\fi
+}
+\fi
 
 
 
@@ -94,7 +119,7 @@
 \protected\def\freemath@literal#1{\freemath@literalA#1\@nnil}
 \def\freemath@literalA#1{%
 	\ifx\@nnil#1\else
-		\csname freemath@#1\endcsname
+		\csname freemath@char@#1\endcsname
 		\expandafter\freemath@literalA
 	\fi
 }
@@ -154,7 +179,10 @@
 }
 \long\def\freemath@radicalC#1{\freemath@savedradical\freemath@radical@c{#1}}
 
-\g@addto@macro\operator@font\freemathoff
+\AtBeginDocument{%
+	\@ifpackageloaded{unicode-math}%
+		{}{\g@addto@macro\operator@font\freemathoff}%
+}
 
 \endinput
 
